@@ -8,7 +8,7 @@ batch:
         privileged-mode: true
         variables:
           IMAGE_TAG_SUFFIX: "-amd64"
-          BASE_IMAGE_TAG: "10.5"
+          BASE_IMAGE_TAG: "10.17-buster"
       buildspec: buildspec.yml
     - identifier: arm64v8
       env:
@@ -17,7 +17,7 @@ batch:
         privileged-mode: true
         variables:
           IMAGE_TAG_SUFFIX: "-arm64v8"
-          BASE_IMAGE_TAG: "10.5"
+          BASE_IMAGE_TAG: "10.17-buster"
       buildspec: buildspec.yml
     - identifier: manifest
       env:
@@ -38,7 +38,7 @@ phases:
       - echo Resolved source version is $RESOLVED_SOURCE_VERSION
       - BRANCH=$(echo $HEAD_REF | awk -F '/' '{print $3}')
       - echo Branch is $BRANCH
-      - BASE_IMAGE_TAG=10.5
+      - BASE_IMAGE_TAG=10.17-buster
       - IMAGE_TAG="$BASE_IMAGE_TAG-$BRANCH"
       - echo Image tag is $IMAGE_TAG
   build:

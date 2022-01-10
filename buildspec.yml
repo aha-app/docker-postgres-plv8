@@ -5,10 +5,10 @@ phases:
     commands:
       - echo Logging into Amazon ECR
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-      - IMAGE_TAG="${CODEBUILD_RESOLVED_SOURCE_VERSION}${IMAGE_TAG_SUFFIX}"
+      - BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-10-bullseye}
+      - echo Base image tag is $BASE_IMAGE_TAG
+      - IMAGE_TAG="${BASE_IMAGE_TAG}-${CODEBUILD_RESOLVED_SOURCE_VERSION}${IMAGE_TAG_SUFFIX}"
       - echo Image tag is $IMAGE_TAG
-      - BASE_IMAGE_TAG="${BASE_IMAGE_TAG:-10.5}"
-      - echo Postgres base tag is $BASE_IMAGE_TAG
   build:
     commands:
       - echo Build started on `date`
