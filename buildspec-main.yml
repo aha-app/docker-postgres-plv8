@@ -1,0 +1,58 @@
+version: 0.2
+
+batch:
+  fast-fail: true
+  build-graph:
+    - identifier: amd64
+      env:
+        privileged-mode: true
+        variables:
+          IMAGE_TAG_SUFFIX: "-amd64"
+          BASE_IMAGE_TAG: "10.5"
+      buildspec: buildspec.yml
+    - identifier: arm64v8
+      env:
+        type: ARM_CONTAINER
+        image: aws/codebuild/amazonlinux2-aarch64-standard:2.0
+        privileged-mode: true
+        variables:
+          IMAGE_TAG_SUFFIX: "-arm64v8"
+          BASE_IMAGE_TAG: "10.5"
+      buildspec: buildspec.yml
+    - identifier: manifest
+      env:
+        privileged-mode: true
+      depend-on:
+        - amd64
+        - arm64v8
+      # Without a buildspec, the manifest build will use the phases defined in
+      # this file
+phases:
+  pre_build:
+    commands:
+      - echo Logging into Amazon ECR
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - HEAD_REF=${CODEBUILD_WEBHOOK_HEAD_REF:-$WEBHOOK_HEAD_REF_OVERRIDE}
+      - RESOLVED_SOURCE_VERSION=${CODEBUILD_RESOLVED_SOURCE_VERSION:-$RESOLVED_SOURCE_VERSION_OVERRIDE}
+      - echo Head ref is $HEAD_REF
+      - echo Resolved source version is $RESOLVED_SOURCE_VERSION
+      - BRANCH=$(echo $HEAD_REF | awk -F '/' '{print $3}')
+      - echo Branch is $BRANCH
+      - BASE_IMAGE_TAG=10.5
+      - IMAGE_TAG="$BASE_IMAGE_TAG-$BRANCH"
+      - echo Image tag is $IMAGE_TAG
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker manifest...
+      # The docker manifest CLI command is currently experimental
+      - DOCKER_CLI_EXPERIMENTAL=enabled
+      - docker manifest create $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-arm64v8 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-amd64
+      - docker manifest annotate --arch arm64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-arm64v8
+      - docker manifest annotate --arch amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-amd64
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker manifest push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker manifest inspect $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
