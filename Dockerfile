@@ -1,6 +1,6 @@
-FROM ubuntu:bionic-20220105 AS base
+FROM ubuntu:focal-20220105 AS base
 
-# Basic dependencies that will be included in final image
+# Basic dependencies for package installation
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 RUN apt-get update \
@@ -8,8 +8,16 @@ RUN apt-get update \
         apt-transport-https \
         gnupg \
         gosu \
+        libtinfo5 \
         software-properties-common \
         tzdata
+
+# explicitly set user/group IDs
+RUN set -eux; \
+  groupadd -r postgres --gid=999; \
+  useradd -r -g postgres --uid=999 --home-dir=/var/lib/postgresql --shell=/bin/bash postgres; \
+  mkdir -p /var/lib/postgresql; \
+  chown -R postgres:postgres /var/lib/postgresql
 
 # Install postgres
 ENV PG_MAJOR=10
@@ -32,7 +40,6 @@ RUN buildDependencies=" \
         ca-certificates \
         git-core \
         libglib2.0-dev \
-        libtinfo5 \
         ninja-build \
         pkg-config \
         postgresql-server-dev-$PG_MAJOR \
@@ -47,11 +54,11 @@ RUN buildDependencies=" \
     && cd /tmp/build/plv8 \
     && git checkout $PLV8_REF \
     && make install \
-    && strip /usr/lib/postgresql/$PG_MAJOR/lib/plv8-$PLV8_VERSION.so
-    # && apt-get clean \
-    # && apt-get remove -y $buildDependencies \
-    # && apt-get autoremove -y \
-    # && rm -rf /tmp/build /var/lib/apt/lists/*
+    && strip /usr/lib/postgresql/$PG_MAJOR/lib/plv8-$PLV8_VERSION.so \
+    && apt-get clean \
+    && apt-get remove -y $buildDependencies \
+    && apt-get autoremove -y \
+    && rm -rf /tmp/build /var/lib/apt/lists/*
 
 ENV PGDATA=/var/lib/postgresql/data
 # this 777 will be replaced by 700 at runtime (allows semi-arbitrary "--user" values)
