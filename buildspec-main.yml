@@ -11,7 +11,7 @@ batch:
           PG_MAJOR: "10"
           PLV8_REPO: "https://github.com/JerrySievert/plv8"
           PLV8_REF: "9937643f8877c89acc0f0af155168fa2580bd42e"
-          PLV8_VERSION: 3.1.0
+          PLV8_VERSION: "3.1.0"
       buildspec: buildspec.yml
     - identifier: arm64v8
       env:
