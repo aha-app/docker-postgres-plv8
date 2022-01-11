@@ -56,6 +56,7 @@ RUN buildDependencies=" \
         ninja-build \
         pkg-config \
         postgresql-server-dev-$PG_MAJOR \
+        python \
         python3 \
         wget" && \
     add-apt-repository ppa:ubuntu-toolchain-r/test && \
