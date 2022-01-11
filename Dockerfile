@@ -41,11 +41,12 @@ RUN cat /tmp/postgres.pub | apt-key add - && \
 ENV PATH=$PATH:/usr/lib/postgresql/$PG_MAJOR/bin \
     PJ_MAJOR=$PJ_MAJOR
 
-ENV PLV8_VERSION=3.1.0
 # For compatibility with arm64, we need to download source from a specific commit,
 # instead of downloading the tarball for a stable release
 ARG PLV8_REPO="https://github.com/JerrySievert/plv8" \
-    PLV8_REF=9937643f8877c89acc0f0af155168fa2580bd42e
+    PLV8_REF=9937643f8877c89acc0f0af155168fa2580bd42e \
+    PLV8_VERSION=3.1.0
+ENV PLV8_VERSION=$PLV8_VERSION
 
 RUN buildDependencies=" \
         build-essential \
