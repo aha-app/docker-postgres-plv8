@@ -5,14 +5,14 @@ phases:
     commands:
       - echo Logging into Amazon ECR
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-      - BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-10-bullseye}
-      - echo Base image tag is $BASE_IMAGE_TAG
-      - IMAGE_TAG="${BASE_IMAGE_TAG}-${CODEBUILD_RESOLVED_SOURCE_VERSION}${IMAGE_TAG_SUFFIX}"
+      - PG_MAJOR=${PG_MAJOR:-10}
+      - echo PG_MAJOR is $PG_MAJOR
+      - IMAGE_TAG="${PG_MAJOR}-${CODEBUILD_RESOLVED_SOURCE_VERSION}${IMAGE_TAG_SUFFIX}"
       - echo Image tag is $IMAGE_TAG
   build:
     commands:
       - echo Build started on `date`
-      - docker build --build-arg BASE_IMAGE_TAG=$BASE_IMAGE_TAG -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker build --build-arg PG_MAJOR=$PG_MAJOR -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_REPO_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
 
   post_build:

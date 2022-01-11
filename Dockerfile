@@ -31,14 +31,15 @@ RUN set -eux; \
 ENV LANG en_US.utf8
 
 # Install postgres
-ENV PG_MAJOR=10
+ARG PG_MAJOR
 ADD postgres.pub /tmp/postgres.pub
 RUN cat /tmp/postgres.pub | apt-key add - && \
     echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends postgresql-$PG_MAJOR && \
     rm -rf /var/lib/apt/lists/*
-ENV PATH=$PATH:/usr/lib/postgresql/$PG_MAJOR/bin
+ENV PATH=$PATH:/usr/lib/postgresql/$PG_MAJOR/bin \
+    PJ_MAJOR=$PJ_MAJOR
 
 ENV PLV8_VERSION=3.1.0
 # For compatibility with arm64, we need to download source from a specific commit,
