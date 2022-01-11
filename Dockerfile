@@ -43,9 +43,9 @@ ENV PATH=$PATH:/usr/lib/postgresql/$PG_MAJOR/bin \
 
 # For compatibility with arm64, we need to download source from a specific commit,
 # instead of downloading the tarball for a stable release
-ARG PLV8_REPO="https://github.com/JerrySievert/plv8" \
-    PLV8_REF=9937643f8877c89acc0f0af155168fa2580bd42e \
-    PLV8_VERSION=3.1.0
+ARG PLV8_REPO \
+    PLV8_REF \
+    PLV8_VERSION
 ENV PLV8_VERSION=$PLV8_VERSION
 
 RUN buildDependencies=" \
