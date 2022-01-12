@@ -45,12 +45,12 @@ phases:
       - echo Building the Docker manifest...
       # The docker manifest CLI command is currently experimental
       - DOCKER_CLI_EXPERIMENTAL=enabled
-      - docker manifest create $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-arm64v8 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-amd64
-      - docker manifest annotate --arch arm64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-arm64v8
-      - docker manifest annotate --arch amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-amd64
+      - docker manifest create public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$IMAGE_TAG public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-arm64v8 public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$IMAGE_TAG public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-arm64v8
+      - docker manifest annotate --arch amd64 public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$IMAGE_TAG public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-amd64
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - docker manifest push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-      - docker manifest inspect $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker manifest push public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker manifest inspect public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$IMAGE_TAG
