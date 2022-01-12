@@ -7,11 +7,8 @@ batch:
       env:
         privileged-mode: true
         variables:
-          IMAGE_TAG_SUFFIX: "-amd64"
           PG_MAJOR: "10"
-          PLV8_REPO: "https://github.com/plv8/plv8"
-          PLV8_REF: "v3.0.0"
-          PLV8_VERSION: "3.0.0"
+          ARCH: "amd64"
       buildspec: buildspec.yml
     - identifier: arm64v8
       env:
@@ -19,11 +16,8 @@ batch:
         image: aws/codebuild/amazonlinux2-aarch64-standard:2.0
         privileged-mode: true
         variables:
-          IMAGE_TAG_SUFFIX: "-arm64v8"
           PG_MAJOR: "10"
-          PLV8_REPO: "https://github.com/JerrySievert/plv8"
-          PLV8_REF: "9937643f8877c89acc0f0af155168fa2580bd42e"
-          PLV8_VERSION: "3.1.0"
+          ARCH: "arm64v8"
       buildspec: buildspec.yml
     - identifier: manifest
       env:
@@ -45,7 +39,7 @@ phases:
       - BRANCH=$(echo $HEAD_REF | awk -F '/' '{print $3}')
       - echo Branch is $BRANCH
       - PG_MAJOR=10
-      - IMAGE_TAG="$PG_MAJOR-$BRANCH"
+      - IMAGE_TAG="$BRANCH-$PG_MAJOR"
       - echo Image tag is $IMAGE_TAG
   build:
     commands:
@@ -53,9 +47,9 @@ phases:
       - echo Building the Docker manifest...
       # The docker manifest CLI command is currently experimental
       - DOCKER_CLI_EXPERIMENTAL=enabled
-      - docker manifest create $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-arm64v8 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-amd64
-      - docker manifest annotate --arch arm64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-arm64v8
-      - docker manifest annotate --arch amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-amd64
+      - docker manifest create $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-arm64v8 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-amd64
+      - docker manifest annotate --arch arm64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-arm64v8
+      - docker manifest annotate --arch amd64 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$RESOLVED_SOURCE_VERSION-$PG_MAJOR-amd64
   post_build:
     commands:
       - echo Build completed on `date`

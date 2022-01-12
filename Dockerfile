@@ -13,7 +13,6 @@ RUN apt-get update && \
         gnupg \
         gosu \
         libtinfo5 \
-        software-properties-common \
         tzdata && \
     rm -rf /var/lib/apt/lists/*
 
@@ -31,7 +30,7 @@ RUN set -eux; \
 ENV LANG en_US.utf8
 
 # Install postgres
-ARG PG_MAJOR
+ARG PG_MAJOR=10
 ADD postgres.pub /tmp/postgres.pub
 RUN cat /tmp/postgres.pub | apt-key add - && \
     echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
@@ -39,40 +38,10 @@ RUN cat /tmp/postgres.pub | apt-key add - && \
     apt-get install -y --no-install-recommends postgresql-$PG_MAJOR && \
     rm -rf /var/lib/apt/lists/*
 ENV PATH=$PATH:/usr/lib/postgresql/$PG_MAJOR/bin \
-    PJ_MAJOR=$PJ_MAJOR
+    PG_MAJOR=$PG_MAJOR
 
-# For compatibility with arm64, we need to download source from a specific commit,
-# instead of downloading the tarball for a stable release
-ARG PLV8_REPO \
-    PLV8_REF \
-    PLV8_VERSION
-ENV PLV8_VERSION=$PLV8_VERSION
-
-RUN buildDependencies=" \
-        build-essential \
-        ca-certificates \
-        git-core \
-        libglib2.0-dev \
-        ninja-build \
-        pkg-config \
-        postgresql-server-dev-$PG_MAJOR \
-        python \
-        python3 \
-        wget" && \
-    add-apt-repository ppa:ubuntu-toolchain-r/test && \
-    apt-get update && \
-    apt-get upgrade -y --no-install-recommends libstdc++6 && \
-    apt-get install -y --no-install-recommends $buildDependencies && \
-    mkdir -p /tmp/build && \
-    git clone $PLV8_REPO /tmp/build/plv8 && \
-    cd /tmp/build/plv8 && \
-    git checkout $PLV8_REF && \
-    make install && \
-    strip /usr/lib/postgresql/$PG_MAJOR/lib/plv8-$PLV8_VERSION.so && \
-    apt-get clean && \
-    apt-get remove -y $buildDependencies && \
-    apt-get autoremove -y && \
-    rm -rf /tmp/build /var/lib/apt/lists/*
+COPY scripts/build_plv8.sh .
+RUN ./build_plv8.sh && rm ./build_plv8.sh
 
 # make the sample config easier to munge (and "correct by default")
 RUN set -eux; \
@@ -89,7 +58,7 @@ ENV PGDATA=/var/lib/postgresql/data
 RUN mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA"
 VOLUME /var/lib/postgresql/data
 
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY scripts/docker-entrypoint.sh /usr/local/bin/
 RUN mkdir /docker-entrypoint-initdb.d
 ENTRYPOINT ["docker-entrypoint.sh"]
 
