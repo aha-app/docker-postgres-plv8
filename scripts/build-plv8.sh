@@ -31,7 +31,7 @@ apt-get upgrade -y --no-install-recommends libstdc++6
 apt-get install -y --no-install-recommends $buildDependencies
 
 mkdir -p /tmp/build
-git clone $PLV8_REPO /tmp/build/plv8
+git clone --no-checkout $PLV8_REPO /tmp/build/plv8
 cd /tmp/build/plv8
 git checkout $PLV8_REF
 make install

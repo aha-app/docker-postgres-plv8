@@ -7,7 +7,6 @@ phases:
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
       - PG_MAJOR=${PG_MAJOR:-10}
       - echo PG_MAJOR is $PG_MAJOR
-      - echo ARCH is $ARCH
       - IMAGE_TAG="${CODEBUILD_RESOLVED_SOURCE_VERSION}-${PG_MAJOR}-${ARCH}"
       - echo Image tag is $IMAGE_TAG
   build:

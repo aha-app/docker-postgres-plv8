@@ -36,10 +36,8 @@ phases:
       - RESOLVED_SOURCE_VERSION=${CODEBUILD_RESOLVED_SOURCE_VERSION:-$RESOLVED_SOURCE_VERSION_OVERRIDE}
       - echo Head ref is $HEAD_REF
       - echo Resolved source version is $RESOLVED_SOURCE_VERSION
-      - BRANCH=$(echo $HEAD_REF | awk -F '/' '{print $3}')
-      - echo Branch is $BRANCH
       - PG_MAJOR=10
-      - IMAGE_TAG="$BRANCH-$PG_MAJOR"
+      - IMAGE_TAG="$PG_MAJOR"
       - echo Image tag is $IMAGE_TAG
   build:
     commands:
