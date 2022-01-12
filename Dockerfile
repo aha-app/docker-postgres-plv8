@@ -40,8 +40,8 @@ RUN cat /tmp/postgres.pub | apt-key add - && \
 ENV PATH=$PATH:/usr/lib/postgresql/$PG_MAJOR/bin \
     PG_MAJOR=$PG_MAJOR
 
-COPY scripts/build_plv8.sh .
-RUN ./build_plv8.sh && rm ./build_plv8.sh
+COPY scripts/build-plv8.sh .
+RUN ./build-plv8.sh && rm ./build-plv8.sh
 
 # make the sample config easier to munge (and "correct by default")
 RUN set -eux; \
