@@ -31,7 +31,7 @@ phases:
   pre_build:
     commands:
       - echo Logging into Amazon ECR
-      - $(aws ecr-public get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin public.ecr.aws)
+      - aws ecr-public get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin public.ecr.aws
       - docker info
       - HEAD_REF=${CODEBUILD_WEBHOOK_HEAD_REF:-$WEBHOOK_HEAD_REF_OVERRIDE}
       - RESOLVED_SOURCE_VERSION=${CODEBUILD_RESOLVED_SOURCE_VERSION:-$RESOLVED_SOURCE_VERSION_OVERRIDE}

@@ -4,8 +4,7 @@ phases:
   pre_build:
     commands:
       - echo Logging into Amazon ECR
-      - $(aws ecr-public get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin public.ecr.aws)
-      - docker info
+      - aws ecr-public get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin public.ecr.aws
       - PG_MAJOR=${PG_MAJOR:-10}
       - echo PG_MAJOR is $PG_MAJOR
       - IMAGE_TAG="${CODEBUILD_RESOLVED_SOURCE_VERSION}-${PG_MAJOR}-${ARCH}"
