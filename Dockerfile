@@ -40,9 +40,6 @@ RUN cat /tmp/postgres.pub | apt-key add - && \
 ENV PATH=$PATH:/usr/lib/postgresql/$PG_MAJOR/bin \
     PG_MAJOR=$PG_MAJOR
 
-COPY scripts/build-plv8.sh .
-RUN ./build-plv8.sh && rm ./build-plv8.sh
-
 # make the sample config easier to munge (and "correct by default")
 RUN set -eux; \
     dpkg-divert --add --rename --divert "/usr/share/postgresql/postgresql.conf.sample.dpkg" "/usr/share/postgresql/$PG_MAJOR/postgresql.conf.sample"; \
@@ -57,6 +54,9 @@ ENV PGDATA=/var/lib/postgresql/data
 # this 777 will be replaced by 700 at runtime (allows semi-arbitrary "--user" values)
 RUN mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA"
 VOLUME /var/lib/postgresql/data
+
+COPY scripts/build-plv8.sh .
+RUN ./build-plv8.sh && rm ./build-plv8.sh
 
 COPY scripts/docker-entrypoint.sh /usr/local/bin/
 RUN mkdir /docker-entrypoint-initdb.d
