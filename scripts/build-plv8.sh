@@ -31,7 +31,6 @@ git clone --no-checkout $PLV8_REPO /tmp/build/plv8-$PLV8_VERSION
 cd /tmp/build/plv8-$PLV8_VERSION
 git checkout $PLV8_REF
 make install
-make installcheck
 
 strip /usr/lib/postgresql/$PG_MAJOR/lib/plv8-$PLV8_VERSION.so
 apt-get clean
