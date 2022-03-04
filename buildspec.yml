@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging into Amazon ECR
+      - aws ecr-public get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin public.ecr.aws
+      - PG_MAJOR=${PG_MAJOR:-10}
+      - echo PG_MAJOR is $PG_MAJOR
+      - IMAGE_TAG="${CODEBUILD_RESOLVED_SOURCE_VERSION}-${PG_MAJOR}-${ARCH}"
+      - echo Image tag is $IMAGE_TAG
+  build:
+    commands:
+      - echo Build started on `date`
+      - docker build --build-arg PG_MAJOR=$PG_MAJOR -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed `date`
+      - echo Pushing image
+      - docker push public.ecr.aws/m4f7q4x5/$IMAGE_REPO_NAME:$IMAGE_TAG
