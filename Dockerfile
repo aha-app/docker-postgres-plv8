@@ -5,7 +5,7 @@ ENV PLV8_SHASUM="4988089380e5f79f7315193dbd4df334da9899caf7ef78ed1ea770971232720
 
 # Based on https://github.com/clkao/docker-postgres-plv8/blob/bd49ae/10-2/Dockerfile
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends\
+RUN apt-get install --yes --no-install-recommends\
     apt-transport-https \
     build-essential \
     ca-certificates \
@@ -26,17 +26,7 @@ RUN apt-get install -y --no-install-recommends\
 COPY testing.list /etc/apt/sources.list.d/
 RUN echo "APT::Default-Release \"stable\";" > /etc/apt/apt.conf.d/default-release
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends -t testing binutils
+RUN apt-get install --yes --no-install-recommends --target-release testing binutils
 
-RUN mkdir /tmp/build
-WORKDIR /tmp/build
-RUN curl -o v$PLV8_VERSION.tar.gz -SL "https://github.com/plv8/plv8/archive/v${PLV8_VERSION}.tar.gz"
-RUN echo $PLV8_SHASUM v$PLV8_VERSION.tar.gz | sha256sum -c
-
-RUN tar -xzf v$PLV8_VERSION.tar.gz
-WORKDIR plv8-$PLV8_VERSION
-
-RUN make
-RUN make install
-
-RUN rm -rf /tmp/build /root/.vpython_cipd_cache /root/.vpython-root
+COPY install_plv8.sh .
+RUN bash install_plv8.sh
