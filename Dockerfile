@@ -1,35 +1,42 @@
-FROM postgres:10.5
+FROM postgres:14.1
 
-ENV PLV8_VERSION=2.3.13 \
-    PLV8_SHASUM="1a96c559d98ad757e7494bf7301f0e6b0dd2eec6066ad76ed36cc13fec4f2390"
+ENV PLV8_VERSION=3.1.2
+ENV PLV8_SHASUM="4988089380e5f79f7315193dbd4df334da9899caf7ef78ed1ea7709712327208"
 
 # Based on https://github.com/clkao/docker-postgres-plv8/blob/bd49ae/10-2/Dockerfile
-RUN buildDependencies="build-essential \
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends\
+    apt-transport-https \
+    build-essential \
     ca-certificates \
     curl \
     git-core \
-    python \
-    gpp \
-    cpp \
-    pkg-config \
-    apt-transport-https \
-    cmake \
     libc++-dev \
-    postgresql-server-dev-$PG_MAJOR" \
-    runtimeDependencies="libc++1" \
-  && apt-get update \
-  && apt-get install -y --no-install-recommends ${buildDependencies} ${runtimeDependencies} \
-  && mkdir -p /tmp/build \
-  && curl -o /tmp/build/v$PLV8_VERSION.tar.gz -SL "https://github.com/plv8/plv8/archive/v${PLV8_VERSION}.tar.gz" \
-  && cd /tmp/build \
-  && echo $PLV8_SHASUM v$PLV8_VERSION.tar.gz | sha256sum -c \
-  && tar -xzf /tmp/build/v$PLV8_VERSION.tar.gz -C /tmp/build/ \
-  && cd /tmp/build/plv8-$PLV8_VERSION \
-  && make static \
-  && make install \
-  && strip /usr/lib/postgresql/${PG_MAJOR}/lib/plv8-${PLV8_VERSION}.so \
-  && rm -rf /root/.vpython_cipd_cache /root/.vpython-root \
-  && apt-get clean \
-  && apt-get remove -y ${buildDependencies} \
-  && apt-get autoremove -y \
-  && rm -rf /tmp/build /var/lib/apt/lists/*
+    libc++1 \
+    libc++abi-dev \
+    libglib2.0-dev \
+    libtinfo5 \
+    ninja-build \
+    pkg-config \
+    postgresql-server-dev-$PG_MAJOR \
+    python \
+    wget
+
+# We need binutil version >= 2.38 due to a bug that prevents plv8 from compiling. This can be removed once the Debian stable repo catches up.
+COPY testing.list /etc/apt/sources.list.d/
+RUN echo "APT::Default-Release \"stable\";" > /etc/apt/apt.conf.d/default-release
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends -t testing binutils
+
+RUN mkdir /tmp/build
+WORKDIR /tmp/build
+RUN curl -o v$PLV8_VERSION.tar.gz -SL "https://github.com/plv8/plv8/archive/v${PLV8_VERSION}.tar.gz"
+RUN echo $PLV8_SHASUM v$PLV8_VERSION.tar.gz | sha256sum -c
+
+RUN tar -xzf v$PLV8_VERSION.tar.gz
+WORKDIR plv8-$PLV8_VERSION
+
+RUN make
+RUN make install
+
+RUN rm -rf /tmp/build /root/.vpython_cipd_cache /root/.vpython-root
