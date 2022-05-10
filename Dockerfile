@@ -22,6 +22,9 @@ RUN apt-get install --yes --no-install-recommends\
     python \
     wget
 
+# Set the locale
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen && update-locale LC_ALL=en_US.UTF-8
+
 # We need binutil version >= 2.38 due to a bug that prevents plv8 from compiling. This can be removed once the Debian stable repo catches up.
 COPY testing.list /etc/apt/sources.list.d/
 RUN echo "APT::Default-Release \"stable\";" > /etc/apt/apt.conf.d/default-release
