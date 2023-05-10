@@ -2,6 +2,8 @@ FROM postgres:14.1
 
 ENV PLV8_VERSION=3.1.2
 ENV PLV8_SHASUM="4988089380e5f79f7315193dbd4df334da9899caf7ef78ed1ea7709712327208"
+ENV PGVECTOR_VERSION=0.4.1
+ENV PGVECTOR_SHASUM="12dc08c33165a2f14d97d1c153d6ec3dc0c8d1b8c53ac3ba8b44517e8795444c"
 
 # Based on https://github.com/clkao/docker-postgres-plv8/blob/bd49ae/10-2/Dockerfile
 RUN apt-get update
@@ -33,3 +35,6 @@ RUN apt-get install --yes --no-install-recommends --target-release testing binut
 
 COPY install_plv8.sh .
 RUN bash install_plv8.sh
+
+COPY install_pgvector.sh .
+RUN bash install_pgvector.sh
