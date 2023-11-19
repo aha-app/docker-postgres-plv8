@@ -2,8 +2,8 @@
 FROM postgres:14.7
 
 # RDS for Postgres 14.X only supports PLV8 2.3.15, but we can't get that version to build.
-ENV PLV8_VERSION=3.1.2
-ENV PLV8_SHASUM="4988089380e5f79f7315193dbd4df334da9899caf7ef78ed1ea7709712327208"
+ENV PLV8_VERSION=3.1.8
+ENV PLV8_SHASUM="92b10c7db39afdae97ff748c9ec54713826af222c459084ad002571b79eb3f49"
 
 RUN apt-get update
 RUN apt-get install --yes --no-install-recommends\
@@ -20,7 +20,7 @@ RUN apt-get install --yes --no-install-recommends\
     ninja-build \
     pkg-config \
     postgresql-server-dev-$PG_MAJOR \
-    python \
+    python3 \
     wget
 
 # Set the locale
