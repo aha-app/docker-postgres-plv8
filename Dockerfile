@@ -1,9 +1,10 @@
+# Based on https://github.com/clkao/docker-postgres-plv8/blob/bd49ae/10-2/Dockerfile
 FROM postgres:14.7
 
-ENV PLV8_VERSION=2.3.15
-ENV PLV8_SHASUM="8a05f9d609bb79e47b91ebc03ea63b3f7826fa421a0ee8221ee21581d68cb5ba"
+# RDS for Postgres 14.X only supports PLV8 2.3.15, but we can't get that version to build.
+ENV PLV8_VERSION=3.1.2
+ENV PLV8_SHASUM="4988089380e5f79f7315193dbd4df334da9899caf7ef78ed1ea7709712327208"
 
-# Based on https://github.com/clkao/docker-postgres-plv8/blob/bd49ae/10-2/Dockerfile
 RUN apt-get update
 RUN apt-get install --yes --no-install-recommends\
     apt-transport-https \
